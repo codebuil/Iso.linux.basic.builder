@@ -41,14 +41,71 @@ class BareboneBuilder:
 
     def build_kernel(self):
         filename = tk.filedialog.askopenfilename(title="Select file")
+        dff=filename
+        dbb=True
+        while dbb:
+            ttr=dff.find("/")
+            if ttr>-1:
+                dff=dff[ttr+1:]
+            else:
+                break
+                dbb=True
+        dbb=True
+        while dbb:
+            ttr=dff.find(".")
+            if ttr>-1:
+                dff=dff[:ttr]
+            else:
+                break
+        print (dff)
         self.text_area.delete(1.0, tk.END)
         self.execute_command("unzip -u ./file/CD_root.zip -d /tmp",False)
         self.execute_command("as -o /tmp/boot.o ./file/boot.s",True)
         self.execute_command("nasm -o /tmp/model.o ./file/model.asm",True)
-        fff=f'gcc -c  "./file/base.c" -o /tmp/base.o'
+
+        try:
+            f4=open("./"+dff+".c","r")
+            f5=open("./file/base.c","r")
+            f6=open("/tmp/base.c","w")
+            ff1=f4.read()
+            ff2=f5.read()
+            ff3=ff1+"\n\n"+ff2
+            f6.write(ff3)
+            f4.close()
+            f5.close()
+            f6.close()
+            
+            f1=open("./file/kernels.bi","w")
+            f2=open("./"+dff+".c","r")
+            ff2=f2.read()
+            f22=ff2.split("\n")
+            for n in f22:
+                f222=n.split("=")
+                f2f22=""
+                if len(f222)>0:
+                    ff22=f222[0].replace("      "," ")
+                    ff22=ff22.replace("     "," ")
+                    ff22=ff22.replace("    "," ")
+                    ff22=ff22.replace("   "," ")
+                    ff22=ff22.replace("  "," ")
+                    ff22=ff22.replace(" "," ")
+                    ff22=ff22.replace("char *","")
+                    ff22=ff22.strip() 
+                    if len(ff22)>0:
+                        f2f22=f'Extern {ff22} as byte ptr\n'
+                        f1.write(f2f22)
+            
+            f1.close()
+            f2.close()
+        except:
+            print("")
+
+        fff=f'gcc -c  "/tmp/base.c" -o /tmp/base.o'
         
         self.execute_command(fff,True)
-        fff=f'fbc -entry MAIN -c  -lib "/tmp/base.o" "$1" -o /tmp/kernel.o'.replace("$1",filename)
+        fff=f'cp -f "$1" /tmp/kernel.bas'.replace("$1",filename)
+        self.execute_command(fff,True)
+        fff=f'fbc -entry MAIN -c  -lib "/tmp/base.o" /tmp/kernel.bas -o /tmp/kernel.o'
         
         self.execute_command(fff,True)
         self.execute_command("ld -T ./file/link.ld -nostdlib /tmp/boot.o  /tmp/kernel.o /tmp/base.o -o /tmp/hello.elf",True)
@@ -60,7 +117,7 @@ class BareboneBuilder:
         self.execute_command("genisoimage -o myos.iso -input-charset utf-8 -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4  -boot-info-table /tmp/CD_root ",True)
     def run_kernel(self):
         self.text_area.delete(1.0, tk.END)
-        self.execute_command("qemu-system-i386 -serial msmouse -cdrom myos.iso",True)
+        self.execute_command("qemu-system-x86_64 -serial msmouse -cdrom myos.iso",True)
 
 
     def copy_file(self):
