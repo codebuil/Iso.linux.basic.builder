@@ -8,6 +8,7 @@ extern "C"
 	declare function mallocs cdecl alias "malloc"(length as integer) as byte ptr
 	declare sub strcpys cdecl alias "strcpys"(dest as byte ptr, src as byte ptr)
 	declare sub strcats cdecl alias "strcats"(s1 as byte ptr,s2 as byte ptr)
+	declare sub strnfill cdecl alias "strnfill"(s1 as byte ptr,s2 as byte,n as integer)
 	declare function hello cdecl alias "c_hello"() as byte ptr
 end extern
 
