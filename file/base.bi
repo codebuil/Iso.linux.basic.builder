@@ -1,5 +1,9 @@
 #inclib "base"
 extern "C"
+#include once "./file/kernels.bi"
+end extern
+extern "C"
+
 	declare sub clears cdecl alias "clears"()
 	declare sub scrollb8000 cdecl alias "scrollb8000"()
 	declare sub copyb8000 cdecl alias "copyb8000"(address as integer ,s as byte ptr)
